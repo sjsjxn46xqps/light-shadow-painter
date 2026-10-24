@@ -1,0 +1,154 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f4eee3">
+<title>光影绘梦师 · The Dream Painter</title>
+<meta name="description" content="一个关于颜色、风与画笔的短篇平台解谜游戏。用光影笔画出桥梁与墙壁，让失去色彩的世界慢慢醒来。">
+<meta name="author" content="光影绘梦师">
+<meta property="og:type" content="website">
+<meta property="og:title" content="光影绘梦师 · The Dream Painter">
+<meta property="og:description" content="世界遗忘了颜色。你有一支笔，和一颗还记得颜色的心。">
+<meta property="og:image" content="https://sjsjxn46xqps.github.io/light-shadow-painter/assets/og.jpg">
+<meta property="og:url" content="https://sjsjxn46xqps.github.io/light-shadow-painter/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="光影绘梦师 · The Dream Painter">
+<meta name="twitter:description" content="世界遗忘了颜色。你有一支笔，和一颗还记得颜色的心。">
+<meta name="twitter:image" content="https://sjsjxn46xqps.github.io/light-shadow-painter/assets/og.jpg">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<canvas id="game" aria-label="光影绘梦师游戏画面"></canvas>
+<noscript><div style="position:fixed;inset:0;display:grid;place-items:center;background:#f4eee3;color:#23222a;font-family:serif;font-size:18px;z-index:999">《光影绘梦师》需要启用 JavaScript 才能游玩。</div></noscript>
+
+<button id="soundToggle" class="sound-toggle" aria-label="静音 / 取消静音" aria-pressed="false" title="静音（M）">♪</button>
+
+<div id="hud" class="hud" aria-live="polite">
+  <div class="chapter-tag">
+    <span class="chapter-no" id="hudNo">第一章</span>
+    <span class="chapter-name" id="hudName">白纸原野</span>
+    <em id="hudSub">THE BLANK FIELD</em>
+  </div>
+  <div class="hud-right">
+    <div class="color-meter" title="世界找回的颜色">
+      <span class="color-label">色彩</span>
+      <div class="color-track"><i id="colorFill"></i></div>
+      <b id="colorValue">0%</b>
+    </div>
+    <button id="btnPause" class="round-btn" aria-label="暂停">Ⅱ</button>
+  </div>
+
+  <div id="hint" class="hint">
+    <span id="hintText"></span>
+    <span id="hintSub"></span>
+  </div>
+
+  <div id="inkMeter" class="ink-meter">
+    <span class="ink-label">墨</span>
+    <div class="ink-track"><i id="inkFill"></i></div>
+    <b id="inkValue">100</b>
+  </div>
+
+  <div class="hud-keys">左键 画 · A/D 移动 · 空格 跳 · R 重来</div>
+</div>
+
+<section id="titleScreen" class="screen title-screen show">
+  <div class="title-inner">
+    <div class="title-copy">
+      <div class="eyebrow"><i></i><span>A SHORT GAME ABOUT COLOR</span></div>
+      <h1><span>光影</span><span>绘梦师</span></h1>
+      <div class="title-en">THE DREAM PAINTER</div>
+      <p class="lede">世界遗忘了颜色。<br>你有一支笔，和一颗还记得颜色的心。</p>
+      <div class="menu">
+        <button id="btnStart" class="btn primary">开始绘梦</button>
+        <button id="btnChapters" class="btn ghost">章节</button>
+        <button id="btnNew" class="btn tiny">从头开始</button>
+      </div>
+      <div class="chapter-row" id="chapterRow"></div>
+      <div class="controls-line">A / D 移动 · 空格 跳跃 · 按住左键作画 · Esc 暂停</div>
+      <div class="title-meta">
+        <span id="titleStats">一个关于颜色、风与画笔的微小旅程</span>
+        <span class="dots" id="titleDots"></span>
+      </div>
+    </div>
+    <div class="title-side">
+      <div class="vertical-poem">以光为墨 · 以梦为纸</div>
+      <div class="seal">绘<br>梦</div>
+    </div>
+  </div>
+</section>
+
+<section id="pauseScreen" class="screen modal">
+  <div class="card small">
+    <div class="kicker">PAUSED</div>
+    <h2>停笔片刻</h2>
+    <p class="card-line">风会等你。墨也会。</p>
+    <div class="modal-actions">
+      <button id="btnResume" class="btn primary">继续</button>
+      <button id="btnRestart" class="btn ghost">重画本章</button>
+      <button id="btnQuit" class="btn tiny">回到标题</button>
+    </div>
+  </div>
+</section>
+
+<section id="completeScreen" class="screen modal complete-modal">
+  <div class="card complete">
+    <div class="kicker">COLOR RESTORED</div>
+    <h2 id="completeTitle">一 · 白纸原野</h2>
+    <p class="card-line" id="completeLine">第一笔落下，风里有了一点暖意。</p>
+    <div class="stats">
+      <div><span>用时</span><b id="statTime">0:00</b></div>
+      <div><span>落笔</span><b id="statStrokes">0</b></div>
+      <div><span>色彩</span><b id="statColor">100%</b></div>
+    </div>
+    <div class="modal-actions">
+      <button id="btnNext" class="btn primary">继续前行</button>
+      <button id="btnReplay" class="btn ghost">再绘一次</button>
+    </div>
+  </div>
+</section>
+
+<section id="endingScreen" class="screen ending">
+  <div class="ending-inner">
+    <div class="kicker">THE WORLD REMEMBERS</div>
+    <h2>世界，想起了颜色。</h2>
+    <p class="ending-line">你画过的桥会消失，但走过它的风记得。<br>谢谢你，把颜色一笔一笔地带回来。</p>
+    <div class="ending-dots" id="endingDots"></div>
+    <p class="ending-stats" id="endingStats"></p>
+    <div class="modal-actions center">
+      <button id="btnPostcard" class="btn primary">保存这幅画</button>
+      <button id="btnAgain" class="btn ghost">再绘一次</button>
+      <button id="btnEndingTitle" class="btn tiny">回到标题</button>
+    </div>
+  </div>
+</section>
+
+<div id="chapterFlash" class="chapter-flash">
+  <span id="cfNo">一</span>
+  <div class="cf-copy">
+    <b id="cfName">白纸原野</b>
+    <em id="cfSub">颜色睡着的地方</em>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<div id="touchControls" class="touch-controls">
+  <div class="touch-pad">
+    <button data-key="ArrowLeft" aria-label="向左">←</button>
+    <button data-key="ArrowRight" aria-label="向右">→</button>
+  </div>
+  <button data-key="Space" class="touch-jump" aria-label="跳跃">跳</button>
+</div>
+
+<div id="transition" class="transition"></div>
+
+<script src="js/core.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/levels.js"></script>
+<script src="js/art.js"></script>
+<script src="js/game.js"></script>
+</body>
+</html>
